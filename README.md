@@ -16,7 +16,7 @@ The app contains two webpages:
 </ol>
 </p>
 
-<h3>Features</h3>
+<h3>App Features</h3>
 <ul>
 <li>Dynamic user interface optimized for iPad.</li>
 <li>Customizable price buttons for giftcard page</li>
