@@ -14,7 +14,9 @@ The app contains two webpages:
 <li>Giftcard page to be used by a restaurant server</li>
 <li>Admin page for adjusting settings, collecting statistics, and managing/creating giftcards</li>
 </ol>
+(Screenshots available at bottom)
 </p>
+
 
 <h3>App Features</h3>
 <ul>
@@ -51,4 +53,9 @@ The app contains two webpages:
 <li>Templating using Ruby <a href="http://liquidmarkup.org">Liquid</a></li>
 <li>RESTful API (Sinatra)</li>
 </ul>
+
+<h2>Screenshots</h2>
+![ipad screenshot](/images/ipad4.png?raw=true)
+![admin screenshot](/images/admin1.png?raw=true)
+
 
