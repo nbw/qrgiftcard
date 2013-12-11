@@ -14,7 +14,7 @@ The app is comprised of two webpages:
 <li>Giftcard page to be used by a restaurant server</li>
 <li>Admin page for adjusting settings, collecting statistics, and managing/creating giftcards</li>
 </ol>
-(Screenshots available at bottom)
+(screenshots available at bottom)
 </p>
 
 
