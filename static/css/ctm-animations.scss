@@ -1,0 +1,21 @@
+@mixin animation($val) {
+	animation:$val;
+	-webkit-animation:$val;
+}
+
+.fadeOut {
+    opacity: 0;
+    @include animation(fade 0.3s reverse);
+}
+.fadeIn{
+    opacity: 0;
+    @include animation(fade 0.3s);
+}
+@keyframes fade {
+    0% { opacity:0;  }
+  100% { opacity:1; display:block; }
+}
+@-webkit-keyframes fade {
+    0% { opacity:0;  }
+  100% { opacity:1; display:block; }
+}

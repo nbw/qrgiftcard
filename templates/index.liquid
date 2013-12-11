@@ -277,17 +277,23 @@
                 <div class="modal-body">
                     <div class="row m-mainSelection">
                             <div class="col-xs-4 col-sm-4 col-md-4" >
-                                <button type="button" class="btn btn-lg btn-default" data-target="m-userInfo" >New Card</button>
+                                <button type="button" class="btn btn-lg btn-default mainSelectionBtn" 
+                                data-target="#introModal .m-userInfo" 
+                                data-toggle="collapse">New Card</button>
                             </div>
                             <div class="col-xs-4 col-sm-4 col-md-4" >
-                                <button type="button" class="btn btn-lg btn-default" data-target="m-transferCard">Transfer Card</button>
+                                <button type="button" class="btn btn-lg btn-default mainSelectionBtn" 
+                                data-target="#introModal .m-transferCard"
+                                data-toggle="collapse">Transfer Card</button>
                             </div>
                             <div class="col-xs-4 col-sm-4 col-md-4" >
-                                <button type="button" class="btn btn-lg btn-default" data-target="m-superCard">Super Card</button>
+                                <button type="button" class="btn btn-lg btn-default mainSelectionBtn" 
+                                data-target="#introModal .m-superCard"
+                                data-toggle="collapse">Super Card</button>
                             </div>
                     </div>
 
-                    <div class='m-userInfo isHidden'> 
+                    <div class='m-userInfo collapse'> 
                         <table class="table">
                             <tr>
                                 <td class="text-right">First Name:</td>
@@ -319,12 +325,14 @@
                                 <button type="button" class="btn btn-lg btn-default" data-bind="click: createIdentity">Submit</button>
                             </div>
                             <div class="col-xs-6 col-sm-6 col-md-6" >
-                                <button type="button" class="btn btn-lg btn-default cancel-btn" data-target="m-userInfo">Cancel</button>
+                                <button type="button" class="btn btn-lg btn-default cancel-btn mainSelectionBtn" 
+                                        data-target="#introModal .m-userInfo"
+                                        data-toggle="collapse" >Cancel</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class='m-transferCard isHidden'> 
+                    <div class='m-transferCard collapse'> 
                         <p>
                         The giftcard being transfered must already be <u>disabled</u>. 
                         </p>
@@ -350,13 +358,16 @@
                                             <button type="submit" class="btn btn-lg btn-default fullWidth">Submit</button>
                                         </div>
                                         <div class="col-xs-6 col-sm-6 col-md-6">
-                                            <button type="button" class="btn btn-lg btn-default cancel-btn fullWidth" data-target="m-transferCard">Cancel</button>
+                                            <button type="button" 
+                                                    class="btn btn-lg btn-default cancel-btn fullWidth mainSelectionBtn"         
+                                                    data-target="#introModal .m-transferCard"
+                                                    data-toggle="collapse" >Cancel</button>
                                         </div>
                                     </div>
                            </form>
                         </div>
                     </div>
-                    <div class='m-superCard isHidden'> 
+                    <div class='m-superCard collapse'> 
                         <p class="text-center">
                         A supercard can be used to view the current day's transaction history. 
                         </p>
@@ -371,7 +382,10 @@
                                             <button type="submit" class="btn btn-lg btn-default fullWidth">Submit</button>
                                         </div>
                                         <div class="col-xs-6 col-sm-6 col-md-6">
-                                            <button type="button" class="btn btn-lg btn-default cancel-btn fullWidth" data-target="m-superCard" >Cancel</button>
+                                            <button type="button" 
+                                                    class="btn btn-lg btn-default cancel-btn fullWidth mainSelectionBtn"        
+                                                    data-target="#introModal .m-superCard"
+                                                    data-toggle="collapse" >Cancel</button>
                                         </div>
                                     </div>
                            </form>
@@ -818,6 +832,10 @@
                 $(inputFieldID).trigger('keyup'); // updating the buttons 
             });
 
+
+            $(".mainSelectionBtn").click(function(){
+                $(this).closest(".modal").find(".m-mainSelection").toggleClass('isHidden');
+            });
             
 
             $("#pinWindow-container form").children('input').focus();
