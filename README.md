@@ -20,7 +20,7 @@ The app is comprised of two webpages:
 
 <h3>App Features</h3>
 <ul>
-<li>Dynamic user interface optimized for iPad.</li>
+<li>Dynamic user interface optimized for iPad</li>
 <li>Customizable price buttons for giftcard page</li>
 <li>'PIN input key' mode to track servers</li>
 <li>Create/Modify/Disable/Transfer/Recover Giftcards</li>
