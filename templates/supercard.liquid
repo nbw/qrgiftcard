@@ -1,0 +1,150 @@
+<html>
+<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+	<link href="css/bootstrap.css" rel="stylesheet" media="screen">
+	<link href="css/super-style.css" rel="stylesheet">
+</head>
+<style>
+	
+
+</style>
+<body>
+	<div class="container">
+		<div class='content-wrapper'>
+			<h1 data-bind="text: today"></h1>
+		</div>
+		<div class="tables-wrapper">
+			<table class="table table-bordered table-striped table-condensed">
+				<thead>
+					<tr>
+						<th>User Name</th>
+						<th>Amount</th>
+						<th>Timestamp</th>
+					</tr>
+				</thead>
+			</table>
+
+			<div id="list-wrapper"> 
+			    <div id="scroller"> 
+					<table class="table table-bordered table-striped table-condensed	">
+						<tbody data-bind="foreach: transactions()">
+							<tr>
+								<td data-bind='text:  user_name'></td>
+								<td data-bind='text:  format2MoneyStr(amount)'></td>
+								<td data-bind='text:  date'></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<div class='content-wrapper'>
+			<h3>Daily Totals</h3>
+			<table class="table table-condensed">
+				<tbody>
+					<tr>
+						<td class='text-right'>Total Credit:</td>
+						<td>
+							+<span data-bind="text: format2MoneyStr(addedCredit()).slice(1)"></span>
+								(<span data-bind="text: addedCreditLength()"> </span> transactions)
+						</td>
+					</tr>
+					<tr>
+						<td class='text-right'>Total Payments:</td>
+						<td>
+							-<span data-bind="text: format2MoneyStr(paid()).slice(1)"></span>
+								(<span data-bind="text: paidLength()"> </span> transactions)
+						</td>
+					</tr>
+					<tr>
+						<td class='text-right'>Total Balance:</td>
+						<td>
+							<span data-bind="text: format2MoneyStr(balance()).slice(1)"></span>
+								(<span data-bind="text: transactions().length"> </span> transactions)
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+</body>
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript" src="js/iscroll.js"></script>
+<script type="text/javascript" src="js/knockout-2.3.0.js"></script>
+<script>
+
+function ViewModel(){
+	var self = this;
+	self.today = new Date().toDateString();
+	self.transactions = ko.observableArray();
+	{% for item in transactions %}
+                self.transactions.push({
+                    'user_name': '{{item.user_name}}' ,
+                    'amount': {{item.amount}},
+                    'id': {{item.id}},
+                    'is_disabled': {{item.is_disabled}},
+                    'date': new Date({{item.date}}*1000)
+                });
+    {% endfor %}
+    self.balance = ko.computed(function(){
+                var total = 0.00;
+                for ( i = 0; i < self.transactions().length; i++){
+                    if(!self.transactions()[i].is_disabled){
+                        total += self.transactions()[i].amount;
+                    }
+                }
+                return total;
+    });
+
+    self.addedCreditLength = ko.observable();
+    self.addedCredit = ko.computed(function(){
+        var total = 0.00;
+        var num_trans = 0;
+        for ( i = 0; i < self.transactions().length; i++){
+            if((!self.transactions()[i].is_disabled) && (self.transactions()[i].amount > 0)){
+                total += self.transactions()[i].amount;
+                num_trans = num_trans + 1;
+            }
+        }
+        self.addedCreditLength(num_trans);
+        return total;
+    });
+
+    self.paidLength = ko.observable();
+    self.paid = ko.computed(function(){
+    	var num_trans = 0;
+        var total = 0.00;
+        for ( i = 0; i < self.transactions().length; i++){
+            if((!self.transactions()[i].is_disabled) && (self.transactions()[i].amount < 0)){
+                total += self.transactions()[i].amount;
+                num_trans = num_trans + 1;
+            }
+        }
+        self.paidLength(num_trans);
+        return total;
+    });
+}
+
+function format2MoneyStr(price){
+    var priceAbs = Math.abs(price);
+    if (price == 0.00){
+        return "$" + priceAbs.toFixed(2);
+    }
+    else if (price > 0.00){
+        return "+$" + priceAbs.toFixed(2);
+    }
+    else {
+        return "-$" + priceAbs.toFixed(2);
+    }
+}
+
+$(document).ready(function(){
+	window.viewModel = new ViewModel(); // don't delete in production. just remove "window"
+    ko.applyBindings(window.viewModel);
+
+	listScroll = new iScroll('list-wrapper',{snap:false, hideScrollbar: true});
+});
+
+</script>
+</html>

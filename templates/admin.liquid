@@ -1,0 +1,1341 @@
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<link href="css/bootstrap.css" rel="stylesheet" media="screen">
+		<link href="css/admin-style.css" rel="stylesheet">
+        <link href="css/jquery-ui-1.10.3.custom.css" rel="stylesheet">
+        <title>Giftcard Admin | {{ location }}</title>
+	</head>
+
+	<body>
+
+	<div id="container" class="col-xs-12 col-md-12 col-sm-10">
+        <div class="jumbotron">
+            <div class="container">
+                <h1>Giftcard Admin</h1>
+                <p>Manage and create giftcards, view recent transactions, export transaction data to CSV.</p>
+            </div>
+        </div>
+
+        <div class="row row-custom">
+            <ul class="nav nav-tabs nav-justified" id="myTab">
+              <li class="active"><a href="#home">Overview</a></li>
+              <li><a href="#giftsandtrans">Giftcards & Transactions</a></li>
+              <li><a href="#export">Export Records</a></li>
+              <li><a href="#database">Database</a></li>
+              <li><a href="#pinsettings">Users</a></li>
+              <li><a href="#settings">Settings</a></li>
+            </ul>
+
+<!-- ##### HOME ##### -->
+            <div class="tab-content">
+                <div class="tab-pane active" id="home">
+                    <div id="makeContainer" class="col-xs-12 col-sm-12 col-md-12">
+                        </br>
+                        <h3 class="list-group-item-heading">Current host:</h3>
+                        <p class="list-group-item-text">
+                            <span data-bind="text: host"></span>:
+                            <span data-bind="text: port"></span> 
+                            <span class='text-right' 
+                                    data-toggle="collapse" 
+                                    data-target="#hostpw" 
+                                    style="cursor: default;"><a>Change</a></span>
+                        </p>
+                        <div id='hostpw' class="collapse">
+                            <h3>New Host:</h3>
+                            <input class="form-control" type="text" 
+                            style="text-align: center; width:200px; display:inline;" placeholder="host">
+                            <form class="password" data-role="m-userInfo" data-bind="submit: changehost">
+                                <h3>Admin Password:</h3>
+                                <input  class="form-control password inline text-center" type="password" 
+                                        style="width:200px; height:auto; font-size:12pt; margin:0px;" placeholder="password">
+                                <button type="submit" class="btn btn-default inline"    >Submit</button>
+                            </form>
+                             <div class="alert alert-danger isHidden text-center">Incorrect password.</div>
+                        </div> 
+                        <hr>
+                        <h3 class="list-group-item-heading">Latest ID:</h3>
+                        <p class="list-group-item-text"><span data-bind="text: latestId"></span></p>
+                        <hr>
+                        <h3 class="list-group-item-heading">Create Giftcards</h3>
+                        <p> 
+                            Generates a .zip file containing uniquely-signed URLs embedded in .png QR code images.
+                        </p>
+                        <h4 class="list-group-item-heading how-many">How many would you like to make?</h4>
+                        <form class="form-horizontal" role="form">
+                          <div class="form-group">
+                            <label class="col-lg-2 control-label">Number (#):</label>
+                            <div class="col-lg-10">
+                                  <input    type="text" 
+                                            class="form-control" 
+                                            data-bind="value: numberOfCodes, valueUpdate: 'afterkeydown'"
+                                            placeholder="0">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <div class="col-lg-offset-2 col-lg-10">
+                              <button type="button" class="btn btn-lg btn-default" data-bind="click: makeCards">Go</button> 
+                            </div>
+                          </div>
+                        </form>
+                    </div>
+                </div>
+
+
+<!-- ##### Giftcards and Transcations ##### -->
+                <div class="tab-pane" id="giftsandtrans">
+                    <div class="row">
+                        <div id="giftcardsContainer" class="col-xs-12 col-sm-12 col-md-12">
+                            <h2>Giftcards</h2>
+                            <p>Click the "ID" to be access the giftcard page.</p>
+                            <table class="table-condensed table-hover table-bordered">
+                                <thead><tr>
+                                    <th data-bind="sort: { arr: giftCards, prop: 'id' }">ID</th>
+                                    <th data-bind="sort: { arr: giftCards, prop: 'firstName' }">Name</th>
+                                    <th data-bind="sort: { arr: giftCards, prop: 'email' }">Email</th>
+                                    <th data-bind="sort: { arr: giftCards, prop: 'id' }">Creation Date</th>
+                                    <th data-bind="sort: { arr: giftCards, prop: 'id' }">Disabled Date</th>
+                                    <th>Download</th>
+                                    <th>Modify</th>
+                                </tr></thead>
+                            </table>
+
+                            <div id="giftcardList">
+                                <table  class="table table-striped">
+                                        <tbody  data-bind="foreach: giftCards()">
+                                            <tr>
+                                                <td>
+                                                    <a data-bind="attr: { href: link }">
+                                                        <span data-bind="text: id"></span>
+                                                    </a>
+                                                </td>
+                                                <td><span data-bind="text: firstName"></span>
+                                                    <span data-bind="text: lastName"></span>
+                                                </td>
+                                                <td data-bind="text: email"></td> 
+                                                <td data-bind="text: create_date"></td>
+                                                <td data-bind="text: disabled_date()"></td>
+                                                <td ><button type="button" class="close" data-bind="click: $root.downloadCard" style="font-size:18pt; width:50px;"> <span class="glyphicon glyphicon-download"></span> </button></td>
+                                                <td ><button type="button" class="close" data-bind="click: $root.modifyCard" style="font-size:18pt; width:50px;">&times;</button></td>
+                                            </tr>  
+                                        </tbody>    
+                                </table>
+                            </div>
+                                
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="transactionsContainer" class="col-xs-12 col-sm-12 col-md-12">
+                            <h2>Recent Transactions</h2>
+                            <p>The most recent 100 transactions.</p>
+
+                            <table class="table-condensed table-hover table-bordered">
+                                <thead>
+                                    <th>No.</th>
+                                    <th data-bind="sort: { arr: transactions, prop: 'giftcard_id' }">Giftcard</th>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                </tr></thead>
+                            </table>
+
+                            <div id="transactionList">
+                                <table  class="table table-striped">
+                                        <tbody  data-bind="foreach: transactions()">
+                                            <tr>
+                                                <td data-bind="text: $index()"></td>
+                                                <td data-bind="text: giftcard_id"></td>
+                                                <td data-bind="text: date"></td>
+                                                <td data-bind="text: format2MoneyStr(amount)"></td>
+                                            </tr>  
+                                        </tbody>    
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+<!-- ##### EXPORT ##### -->
+                <div class="tab-pane" id="export">
+
+                    <h2>Export Transaction History</h2>
+                    <p>
+                        Generates a .csv file containing transaction history between the start and end dates.<br>
+                        Leaving both start and end date blank will export records for all time.
+                    </p>
+                    <div class="row">
+                        <div id="exportContainer" class="col-xs-12 col-sm-12 col-md-12">
+                            <form class="form-horizontal" role="form">
+                                  <div class="form-group">
+                                    <label class="col-lg-2 control-label">Start Date (Optional):</label>
+                                    <div class="col-lg-10">
+                                        
+                                        <input  type="text" 
+                                            id="exportStart" 
+                                            class="forum-control"
+                                            data-bind="value: exportStart, valueUpdate: 'afterkeydown'">
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <label class="col-lg-2 control-label">End Date (optional):</label>
+                                    <div class="col-lg-10">
+                                      <input  type="text" 
+                                            id="exportEnd"
+                                            class="forum-control" 
+                                            data-bind="value: exportEnd, valueUpdate: 'afterkeydown'">
+                                    </div>
+                                  </div>
+                                  <div class="form-group">
+                                    <div class="col-lg-offset-2 col-lg-10">
+                                      <button type="button" class="btn btn-lg btn-default" data-bind="click: exportData">Export</button>
+                                    </div>
+                                  </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane" id="database">
+                    <h2>Database Statistics</h2>
+                    <p>
+                        Size: <span data-bind="text: dbSize"></span> kB
+                    </p>
+                </div>
+<!-- ##### PIN SETTINGS ##### -->
+                <div class="tab-pane" id="pinsettings">
+                    <div class="row">
+                        <h3> 
+                            Authentication Required: 
+                            <label>
+                                <input type="checkbox" data-bind="checked: pinmodeEnabled">
+                            </label>
+                        </h3>
+                        <p> 
+                            When enabled, requires a 4-digit PIN passcode to access a giftcard page.
+                        </p>
+                        <h3> Users </h3>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th data-bind="sort: { arr: pinUsers, prop: 'id' }">#</th>
+                                    <th data-bind="sort: { arr: pinUsers, prop: 'firstName' }">
+                                        Name
+                                    </th>
+                                    <th>
+                                        Create Date
+                                    </th>
+                                    <th>
+                                        Modify
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                <td><button type="button" class="close" data-bind="click: addPin" style="float:left"> <span class="glyphicon glyphicon-plus-sign"></span> Add User </button>
+                                <td></td>
+                                <td ></td>
+                                </tr>
+                            </tfoot>
+                            <tbody data-bind="foreach: pinUsers()">
+                                <tr>
+                                    <td data-bind="text: $index"></td>
+                                    <td>
+                                        <span data-bind="text: firstName"></span> <span data-bind="text: lastName"></span>
+                                    </td>
+                                    <td data-bind="text: create_date"></td>
+                                    <td ><button type="button" class="close" data-bind="click: $root.modifyPin" 
+                                        style="font-size:18pt; width:50px; float:left;">&times;</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+<!-- ##### SETTINGS ##### -->
+                <div class="tab-pane" id="settings">
+                    <h2>Settings</h2>
+                    <div id="addBtnsWrapper" class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <h3>Add Credit Buttons</h3>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': addBtns()[0].active}">
+                                            <input  type="text" 
+                                                    pattern="[0-9]*" 
+                                                    class="form-control" 
+                                                    placeholder="0.00"
+                                                    data-bind="value: addBtns()[0].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: addBtns()[0].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': addBtns()[1].active}">
+                                            <input  type="text" 
+                                                    pattern="[0-9]*" 
+                                                    class="form-control" 
+                                                    placeholder="0.00"
+                                                    data-bind="value: addBtns()[1].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: addBtns()[1].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': addBtns()[2].active}">
+                                            <input  type="text" 
+                                                    pattern="[0-9]*" 
+                                                    class="form-control" 
+                                                    placeholder="0.00"
+                                                    data-bind="value: addBtns()[2].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: addBtns()[2].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': addBtns()[3].active}">
+                                            <input  type="text" 
+                                                    pattern="[0-9]*" 
+                                                    class="form-control"
+                                                    placeholder="0.00"
+                                                    data-bind="value: addBtns()[3].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: addBtns()[3].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': addBtns()[4].active}">
+                                            <input  type="text" 
+                                                    pattern="[0-9]*" 
+                                                    class="form-control" 
+                                                    placeholder="0.00"
+                                                    data-bind="value: addBtns()[4].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: addBtns()[4].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div id="PayBtnsWrapper" class="row">
+                        <div class="col-xs-12 col-sm-12 col-md-12">
+                            <h3>Payment Buttons</h3>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': payBtns()[0].active}">
+                                            <input type="text" pattern="[0-9]*" class="form-control" placeholder="0.00"
+                                                   data-bind="  value: payBtns()[0].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: payBtns()[0].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                    <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': payBtns()[1].active}">
+                                            <input type="text" pattern="[0-9]*" class="form-control" placeholder="0.00"
+                                                   data-bind="value: payBtns()[1].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: payBtns()[1].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': payBtns()[2].active}">
+                                            <input type="text" pattern="[0-9]*" class="form-control" placeholder="0.00"
+                                                   data-bind="  value: payBtns()[2].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: payBtns()[2].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': payBtns()[3].active}">
+                                            <input type="text" pattern="[0-9]*" class="form-control" placeholder="0.00"
+                                                   data-bind="  value: payBtns()[3].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: payBtns()[3].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>
+                                     <td>
+                                        <forum class="form-group" data-bind="css: {'has-success': payBtns()[4].active}">
+                                            <input type="text" pattern="[0-9]*" class="form-control" placeholder="0.00"
+                                                   data-bind="  value: payBtns()[4].value, valueUpdate: 'keyup'">
+                                            <div class="checkboxWrapper">
+                                                <div class="checkbox">
+                                                    <label>
+                                                        <input type="checkbox" data-bind="checked: payBtns()[4].active"> Enable
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </forum>
+                                    </td>    
+                                </tr>
+                            </table>
+                            <button id="saveBtns" class="btn btn-lg btn-default" style='float:right;'>Save </button>
+                        </div>
+                    </div>
+                <hr>
+                <h3>Change Supervisor Password</h3>
+                <div class="row">
+                    <div class="col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1">
+                        <form data-type="supervisor" class="password-change form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">Current Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password" 
+                                            class="form-control current_pw" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">New Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password"  
+                                            class="form-control new_pw" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Repeat New Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password"  
+                                            class="form-control new_pw_repeat" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10">
+                                    <button type="button" class="btn btn-lg btn-default" data-bind="click: changepw">Change</button>  
+                                </div>
+                            </div>
+                            <div id="" class="pwSuccess alert alert-success isHidden">Successfully changed the password.</div>
+                            <div id="" class="pwMismatch alert alert-danger isHidden">Passwords do no match.</div>
+                             <div id="" class="pwError alert alert-danger isHidden">Passwords change error</div>
+                        </form> 
+                    </div>
+                </div>
+                <hr>
+                <h3>Change Admin Password</h3>
+                <div class="col-xs-10 col-xs-offset-1 col-sm-10 col-sm-offset-1 col-md-10 col-md-offset-1">
+                        <form data-type="admin" class="password-change form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">Current Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password" 
+                                            class="form-control current_pw" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">New Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password"  
+                                            class="form-control new_pw" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Repeat New Password:</label>
+                                <div class="col-lg-10">
+                                    <input  type="password"  
+                                            class="form-control new_pw_repeat" 
+                                            placeholder="password">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-lg-offset-2 col-lg-10"> 
+                                    <button type="button" class="btn btn-lg btn-default" data-bind="click: changepw">Change</button> 
+                                </div>
+                            </div>
+                            <div class="pwSuccess alert alert-success isHidden">Successfully changed the password.</div>
+                            <div class="pwMismatch alert alert-danger isHidden">Passwords do no match.</div>
+                            <div class="pwError alert alert-danger isHidden">Passwords change error</div>
+                        </form> 
+                    </div>
+                </div>
+            </div>
+        </div> 
+        <hr>
+	</div>
+
+<!--- Modal ---->
+    <div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h3 class="modal-title">Modify</h3>
+                </div>
+                <div class="modal-body panel-group">
+                    <div class="row  m-mainSelection" >
+                        <div class="col-xs-6 col-sm-6 col-md-6" >
+                            <button type="button" 
+                                    class="btn btn-lg btn-default modal-btn1 mainSelectionBtn"
+                                    data-parent="#modifymodal .modal-body"  
+                                    data-toggle="collapse" 
+                                    data-target="#modifymodal .m-userInfo" >
+                                    Change User Data</button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6" >
+                            <button type="button" 
+                                    class="btn btn-lg btn-default modal-btn1 mainSelectionBtn"
+                                    data-bind="enable: !currCard().isDisabled"
+                                    data-parent="#modifymodal .modal-body"  
+                                    data-toggle="collapse" 
+                                    data-target="#modifymodal .m-removeGC">
+                                    Disable  Giftcard</button>
+                        </div>
+                    </div>
+                    <div class='m-userInfo collapse'>
+                        <h3>Change User Data:</h3>
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">First Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text" 
+                                            class="form-control" 
+                                            data-bind="value: currCard().firstName"
+                                            placeholder="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Last Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"  
+                                            class="form-control" 
+                                            data-bind="value: currCard().lastName"
+                                            placeholder=" last name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Email:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"  
+                                            class="form-control" 
+                                            data-bind="value: currCard().email"
+                                            placeholder="email">
+                                </div>
+                            </div>
+                        </form>
+                        <div>
+                            <h3 class="text-left">Admin password:</h3>
+                                <form data-role="m-userInfo">
+                                    <input class="form-control password" type="password" placeholder="password">
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                    <button type="button" class="btn btn-default mainSelectionBtn" 
+                                        data-toggle="collapse" 
+                                        data-target="#modifymodal .m-userInfo">
+                                            Back</button>
+                                </form>
+                        </div>  
+                    </div>
+                    <div class='m-removeGC collapse'>
+                        <h4 class="modal-title"><h3>Disable giftcard:</h3>
+                        <table class="table table-bordered text-center"><tr>
+                        <thead ><tr>
+                            <th class='text-center'>ID</th>
+                            <th class='text-center'>Owner</th>
+                            <th class='text-center'>Creation Date</th>
+                        </tr></thead>
+                        <td><span data-bind="text: currCard().id"></span></td>
+                        <td><span data-bind="text: currCard().firstName"></span> 
+                            <span data-bind="text: currCard().lastName"></span></td>
+                        <td><span data-bind="text: currCard().create_date"></span></td>
+                        </tr></table>
+                        <div>
+                            <h3 class="text-left">Admin password:</h3>
+                                <form class="password" data-role="m-removeGC">
+                                    <input class="form-control password" type="password" placeholder="password">
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                    <button type="button" class="btn btn-default mainSelectionBtn" 
+                                            data-toggle="collapse" 
+                                            data-target="#modifymodal .m-removeGC">
+                                    Back</button>
+                                </form>
+
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modifyPinModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h3 class="modal-title">Modify Pin User</h3>
+                </div>
+                <div class="modal-body panel-group">
+                    <div class="row  m-mainSelection" >
+                        <div class="col-xs-6 col-sm-6 col-md-6" >
+                            <button type="button" 
+                                    class="btn btn-lg btn-default modal-btn1 mainSelectionBtn"  
+                                    data-toggle="collapse" 
+                                    data-target="#modifyPinmodal .m-userInfo" >
+                                    Change User Data</button>
+                        </div>
+                        <div class="col-xs-6 col-sm-6 col-md-6" >
+                            <button type="button" 
+                                    class="btn btn-lg btn-default modal-btn1 mainSelectionBtn"
+                                    data-bind="enable: !currCard().isDisabled"
+                                    data-toggle="collapse" 
+                                    data-target="#modifyPinModal .m-remove, #modifyPinModal .m-mainSelection">
+                                    Remove</button>
+                        </div>
+                    </div>
+                    <div class='m-userInfo collapse'>
+                        <p class="invalid-pin text-center alert">
+                            The pin should be 4 characters long and include only numbers.
+                        </p>
+                      
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">First Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text" 
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().firstName, valueUpdate: 'keyup'"
+                                            placeholder="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Last Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"  
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().lastName, valueUpdate: 'keyup'"
+                                            placeholder="last name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Pin:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"  
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().pin, valueUpdate: 'keyup'"
+                                            placeholder="pin">
+                                </div>
+                            </div>
+                        </form>
+                        <div>
+                            <h3 class="text-left">Admin password:</h3>
+                            <form class="password" data-role="m-userInfo">
+                                <input class="form-control password" type="password" placeholder="password">
+                                <button type="submit" class="btn btn-default">Submit</button>
+                                <button type="button" class="btn btn-default mainSelectionBtn" 
+                                        data-toggle="collapse" 
+                                        data-target="#modifyPinModal .m-userInfo">
+                                Back</button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class='m-remove collapse'>
+                        <table class="table table-bordered text-center"><tr>
+                        <thead ><tr>
+                            <th class='text-center'>Name</th>
+                        </tr></thead>
+                        <td>
+                            <span data-bind="text: currPinUser().firstName"></span> <span data-bind="text: currPinUser().lastName"></span>
+                        </td>
+                        </tr></table>
+                        <div>
+                            <h3 class="text-left">Admin password:</h3>
+                                <form class="password" data-role="m-remove">
+                                    <input class="form-control password" type="password" placeholder="password">
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                    <button type="button" class="btn btn-default mainSelectionBtn" 
+                                            data-toggle="collapse" 
+                                            data-target="#modifyPinModal .m-remove">
+                                    Back</button>
+                                </form>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addPinModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                  <h3 class="modal-title">New Pin User</h3>
+                </div>
+
+                <div class="modal-body panel-group">
+                    <div class='m-userInfo'>
+                        <p class="invalid-pin text-center alert">
+                            The pin should be 4 characters long and include only numbers.
+                        </p>
+                        
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label">First Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text" 
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().firstName, valueUpdate: 'keyup'"
+                                            placeholder="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Last Name:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"  
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().lastName, valueUpdate: 'keyup'"
+                                            placeholder="last name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-lg-2 control-label ">Pin:</label>
+                                <div class="col-lg-10">
+                                    <input  type="text"
+                                            pattern="[0-9]*"  
+                                            class="form-control" 
+                                            data-bind="value: currPinUser().pin, valueUpdate: 'keyup'"
+                                            placeholder="pin">
+                                </div>
+                            </div>
+                        </form>
+                        <div>
+                            <h3 class="text-left">Admin password:</h3>
+                                <form class="password" data-role="m-userInfo">
+                                    <input class="form-control password" type="password" placeholder="password">
+                                    <button type="submit" class="btn btn-default">Submit</button>
+                                </form>
+                        </div>
+                        <p class="taken-pin text-center alert hidden">
+                            Pin already taken.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/underscore.js"></script>
+	<script type="text/javascript" src="js/knockout-2.3.0.js"></script>
+	<script type="text/javascript" src="js/bootbox.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/jquery-ui-1.10.3.custom.js"></script>
+
+    <!-- KNOCKUP.JS -->
+	<script type="text/javascript">
+
+        function ViewModel(){
+            var self = this;
+            self.port = ko.observable("{{ port }}");
+            self.host = ko.observable("{{ host }}");
+            self.latestId = ko.observable("{{ latest_id }}");
+            self.pinmodeEnabled = ko.observable({% if pinmode_enabled == 1 %}true{% else %}false{% endif %});
+
+            self.giftCards = ko.observableArray();
+            {% for giftcard in giftcards %}
+                self.giftCards.push({
+                    'id': {{giftcard.id}},
+                    'create_date': new Date({{giftcard.create_date}}*1000).toDateString(),
+                    {% if giftcard.disabled %}
+                    'isDisabled': new ko.observable({{giftcard.disabled}}),
+                    'disabled_date': new ko.observable(new Date({{giftcard.disabled_date}}*1000).toDateString()),
+                    {% else %}
+                    'isDisabled': new ko.observable(null),
+                    'disabled_date': new ko.observable(""),
+                    {% endif %}
+                    'link': "{{giftcard.url}}",
+                    'firstName': "{{giftcard.first_name}}",
+                    'lastName': "{{giftcard.last_name}}",
+                    'email': "{{giftcard.email}}"
+                });
+            {% endfor %}
+
+            self.transactions = ko.observableArray();
+            {% for trans in transactions %}
+                self.transactions.push({
+                    'date': new Date({{trans.date}}*1000),
+                    'amount': {{trans.amount}},
+                    'giftcard_id': {{trans.giftcard_id}}
+                });
+            {% endfor %}
+
+            self.customHost = ko.observable("");
+            self.numberOfCodes = ko.observable();
+
+            self.exportStart = ko.observable("");
+            self.exportEnd = ko.observable("");
+
+            {% if database_size %}
+            self.dbSize = ko.observable({{database_size}}/1024);
+            {% else %}
+            self.dbSize = ko.observable(0);
+            {% endif %}
+
+            self.addBtns = ko.observableArray();
+            {% for btn in credit %}
+                self.addBtns.push({'value': ko.observable({{btn.value}}), 'active': ko.observable({{btn.enabled}})});
+            {% endfor %}
+
+            self.payBtns = ko.observableArray();
+            {% for btn in payment %}
+                self.payBtns.push({'value': ko.observable({{btn.value}}), 'active': ko.observable({{btn.enabled}})});
+            {% endfor %}
+
+            self.currCard = ko.observable({
+                    'id': 0,
+                    'create_date': new Date(),
+                    'isDisabled': false,
+                    'disabled_date': new Date(),
+                    'link': null,
+                    'link': "",
+                    'firstName': new ko.observable(""),
+                    'lastName': new ko.observable(""),
+                    'email': new ko.observable("")
+                });
+
+            self.pinUsers = ko.observableArray();
+
+            {% for u in users %}
+             self.pinUsers.push({   'firstName': "{{u.first_name}}",
+                                    'lastName': "{{u.last_name}}",
+                                    'id': {{u.id}},
+                                    'create_date': new Date({{u.create_date}}*1000).toDateString(),
+                                    {% if u.disabled %}
+                                    'disabled': true,
+                                    'disabled_date': {{u.disabled_date}}
+                                    {% else %}
+                                    'isDisabled': false,
+                                    'disabled_date': ''
+                                    {% endif %}
+                                });
+            {% endfor %}
+            
+            self.currPinUser = ko.observable({
+                'firstName':    "",
+                'lastName':     "",
+                'pin':          "",
+                'id':           ""
+            });
+
+            self.pinmodeEnabled.subscribe(function(){
+                $.post('/api/v1/admin/pin_toggle', {
+                    state: self.pinmodeEnabled()
+                })
+                .fail(function(err){
+                    console.log(err);
+                });
+            });
+
+            self.makeCards = function(){
+                var queryString = "number=" + self.numberOfCodes();
+                window.location.href = "/api/v1/admin/make?" + queryString;
+            }
+
+            self.modifyCard = function(card){
+                $('#modifyModal').on('hide.bs.modal', function () {
+                  confirmAdminPW = $.noop;
+                  $('#modifyModal .m-mainSelection').removeClass('isHidden');
+                  var   content = $('#modifyModal .m-removeGC, #modifyModal .m-userInfo')
+                        content.removeClass('in');
+                        content.addClass('collapse');
+                        content.find('.password').val('');
+                });
+
+                showModal(card,function(pass,role){
+                    confirmAdminPW(pass,function(confirmed){
+                        if(confirmed){
+                            if(role === 'm-removeGC'){
+                                $.post('/api/v1/giftcard/'+card.id.toString()+'/deactivate')
+                                    .success(function(){
+                                        card.isDisabled(true);
+                                        card.disabled_date(new Date().toDateString()); 
+                                        $('#modifyModal').modal('hide');
+                                    })
+                                    .fail(function(err){
+                                        console.log(err);
+                                    });
+                            }
+                            else{
+                                $.post('/api/v1/giftcard/'+card.id.toString()+'/set_metadata',{   
+                                        first_name: self.currCard().firstName(), 
+                                        last_name: self.currCard().lastName(), 
+                                        email: self.currCard().email()})
+                                    .success(function(){
+                                        card.firstName = self.currCard().firstName();
+                                        card.lastName = self.currCard().lastName();
+                                        card.email = self.currCard().email();
+                                        self.updateArray(self.giftCards);
+                                        $('#modifyModal').modal('hide');
+                                    })
+                                    .fail(function(err){
+                                        console.log(err);
+                                });
+                            }
+                            
+                        }
+                    });
+                });
+
+                function showModal(card, callback){
+                    if (typeof callback === "function") {
+                        self.currCard({
+                            'id': card.id,
+                            'create_date': card.create_date,
+                            'isDisabled': card.isDisabled(),
+                            'disabled_date': card.disabled_date(),
+                            'link': card.link,
+                            'firstName': new ko.observable(card.firstName),
+                            'lastName': new ko.observable(card.lastName),
+                            'email': new ko.observable(card.email)
+                        });
+                        $('#modifyModal').modal('show');
+                        $("#modifyModal form").submit(function(e){
+                            e.preventDefault();
+                            callback($(this).children('input').val(),$(this).data('role'));
+                        });
+                    }
+                }
+                function confirmAdminPW(pass,callback){
+                    if (typeof callback === "function") {
+                        // 1. CONFIRM PASSWORD HERE
+                        $.post("/api/v1/validate_admin_action", {
+                            'password': pass
+                        }).success(function(){
+                            callback(true);
+                        }).fail(function(){
+                            callback(false);
+                        });
+                    }
+                }
+            }
+
+            self.modifyPin = function(user){
+
+                    var modal = $('#modifyPinModal');
+
+                    //1. Get a new seperate instance of the user in question
+                    self.currPinUser({
+                        'firstName':    new ko.observable(user.firstName),
+                        'lastName':     new ko.observable(user.lastName),
+                        'pin':          new ko.observable(user.pin),
+                        'id':           user.id
+                    });
+
+                    //2. show the modal
+                    modal.modal('show');
+
+                    //3. MODIFY: wait for a submit event
+                    modal.find('.m-userInfo form').submit(function(e){
+                        e.preventDefault();
+
+                        //4. validate the admin password
+                        if(isPin(self.currPinUser().pin())){
+                            pw($(this).children('input').val()).then(
+                            function(data){
+                                var d = new jQuery.Deferred();
+                                $.post('/api/v1/user/'+user.id.toString()+'/update',{   
+                                    first_name: self.currPinUser().firstName(), 
+                                    last_name: self.currPinUser().lastName(), 
+                                    pin: self.currPinUser().pin()
+                                })
+                                .success(function(){
+                                    //5. if successful then update the front-end
+                                    user.firstName  = self.currPinUser().firstName();
+                                    user.lastName   = self.currPinUser().lastName();
+                                    user.pin   = self.currPinUser().pin();
+                                    self.updateArray(self.pinUsers);
+                                    modal.find('input').val('');
+                                    modal.modal('hide');
+                                })
+                                .fail(function(e){
+                                    console.log(e);
+                                });
+                            });
+                        }
+                        else{
+                            modal.find('p.alert').toggleClass('alert-danger');
+                            setTimeout(function(){modal.find('p.alert').toggleClass('alert-danger');},2500);
+                        }
+                    });
+                    
+                    //3. REMOVE: wait for a submit event
+                    modal.find('.m-remove form').submit(function(e){
+                        e.preventDefault();
+
+                        //4. validate the admin password
+                        pw($(this).children('input').val()).then(
+                        function(data){
+                            var d = new jQuery.Deferred();
+                            $.post('/api/v1/user/'+user.id.toString()+'/delete')
+                            .success(function(){
+                                //5. if successful then update the front-end
+                                self.pinUsers.remove(user);
+                                modal.modal('hide');
+                            })
+                            .fail(function(e){
+                                console.log(e);
+                            });
+                        });
+                    });
+
+                    //6. unbind the modal when it closes
+                    modal.on('hide.bs.modal', function () {
+                            modal.find("form").unbind('submit');
+                            modal.find('.password').val('');
+                    });
+
+                    pw = function(pass){
+                        var b = new jQuery.Deferred();
+                        $.post("/api/v1/validate_admin_action", {
+                            'password': pass
+                        }).success(function(){
+                            b.resolve();    //correct password
+                        })
+                        .fail(function(){
+                            modal.find('form.password').toggleClass("has-error");
+                            setTimeout(function(){modal.find('form.password').toggleClass("has-error");},2500);
+                        });;
+
+                        return b.promise();
+                    }
+            }
+
+            self.addPin = function(){
+
+                    var modal = $('#addPinModal');
+
+                    //1. Get a new seperate instance of the user in question
+                    self.currPinUser({
+                        'firstName':    new ko.observable(''),
+                        'lastName':     new ko.observable(''),
+                        'pin':          new ko.observable(''),
+                        'id':           ''
+                    });
+
+                    //2. show the modal
+                    modal.modal('show');
+
+                    //3. wait for a submit event
+                    modal.find('form').submit(function(e){
+                        e.preventDefault();
+                        if(isPin(self.currPinUser().pin())){
+                            //4. validate the admin password
+                            pw($(this).children('input').val()).then(
+                            function(data){
+                                var d = new jQuery.Deferred();
+                                $.post('/api/v1/user/create',{   
+                                    first_name: self.currPinUser().firstName(), 
+                                    last_name: self.currPinUser().lastName(), 
+                                    pin: self.currPinUser().pin()
+                                })
+                                .success(function(res){
+                                    //5. if successful then update the front-end
+                                    self.pinUsers.push({'firstName':    self.currPinUser().firstName(),
+                                                        'lastName':     self.currPinUser().lastName(),
+                                                        'pin':          self.currPinUser().pin(),
+                                                        'id':           res.id,
+                                                        'create_date':  new Date().toDateString()});
+                                    modal.find('input').val('');
+                                    modal.modal('hide');
+
+                                })
+                                .fail(function(err){
+                                    var resp = JSON.parse(err.responseText);
+                                    if (resp.error === "taken"){
+                                        console.log("Pin already taken");
+                                        var warning = modal.find('p.taken-pin')
+                                            warning.toggleClass('alert-danger hidden');
+                                        setTimeout(function(){modal.find('p.taken-pin').toggleClass('alert-danger hidden');},2500);
+                                    }
+                                });
+                            });
+                        }
+                        else{
+                            modal.find('p.invalid-pin').toggleClass('alert-danger');
+                            setTimeout(function(){modal.find('p.invalid-pin').toggleClass('alert-danger');},2500);
+                        }
+                    });
+
+                    //6. unbind the modal when it closes; reset 
+                    modal.on('hide.bs.modal', function (){
+                            modal.find("form").unbind('submit');
+                            modal.find('.password').val('');
+                    });
+
+                    pw = function(pass){
+                        var b = new jQuery.Deferred();
+                        $.post("/api/v1/validate_admin_action", {
+                            'password': pass
+                        }).success(function(){
+                            b.resolve();    //correct password
+                        })
+                        .fail(function(){
+                            modal.find('form.password').toggleClass("has-error");
+                            setTimeout(function(){modal.find('form.password').toggleClass("has-error");},2500);
+                        });
+
+                        return b.promise();
+                    }
+            }
+
+            self.changepw = function(data, event){
+
+                var parent = $(event.target).closest(".password-change");
+                var type = parent.data('type'); // admin or supervisor
+                var pw_api;
+
+                var current_pw = parent.find("input.current_pw");
+                var new_pw = parent.find("input.new_pw");
+                var new_pw_repeat = parent.find("input.new_pw_repeat");
+
+                pw = function(pass){
+                    var b = new jQuery.Deferred();
+                    $.post(((type ==="supervisor")? "/api/v1/validate_action" : "/api/v1/validate_"+type+"_action"), 
+                    {
+                        'password': pass
+                    }).success(function(){
+                        b.resolve();    //correct password
+                    })
+                    .fail(function(){
+                        $(event.target).find('form.password').toggleClass("has-error");
+                        setTimeout(function(){$(event.target).find('form.password').toggleClass("has-error");},2500);
+                    });
+
+                    return b.promise();
+                }
+
+                if(new_pw.val() === new_pw_repeat.val()){
+                    pw(current_pw.val()).then(function(data){
+                        var d = new jQuery.Deferred();
+                        $.post('/api/v1/set_'+type+'_password',{new_password: new_pw.val()})
+                            .success(function(){
+                                $(parent).parent().toggleClass("has-success");
+                                $(parent).find('.pwSuccess').fadeIn();
+                                setTimeout(function(){
+                                    $(parent).parent().toggleClass("has-success");
+                                    $(parent).find('.pwSuccess').fadeOut();}
+                                    ,3000);
+                            })
+                            .fail(function(err){
+                                $(parent).parent().toggleClass("has-error");
+                                $(parent).find(".alert-danger")
+                                $(parent).find('.pwError').fadeIn();
+                                setTimeout(function(){
+                                    $(parent).parent().toggleClass("has-error");
+                                    $(parent).find('.pwError').fadeOut();}
+                                    ,5000);
+                                console.log(err);
+                        });
+                    });
+                }
+            }
+
+            
+            self.downloadCard = function(card){
+                var queryString = "id=" + card.id.toString();
+                window.location.href = "/api/v1/admin/generate_qr?" + queryString;
+            }
+
+            self.exportData = function(){
+                var start = self.exportStart().length ? Math.round((new Date(self.exportStart())).getTime()/1000) : 0;
+                var end = self.exportEnd().length ? Math.round((new Date(self.exportEnd())).getTime()/1000) : Math.round((new Date).getTime()/1000);
+                window.location.href = "/api/v1/admin/export?start=" + start + "&end=" + end;
+            }
+
+            self.changehost = function(element){
+                var pass = $(element).children('input').val();
+                var new_hostname = $(element).siblings('input').val();
+
+                pw = function(pass){
+                        var b = new jQuery.Deferred();
+                        $.post("/api/v1/validate_admin_action", {
+                            'password': pass
+                        }).success(function(){
+                            b.resolve();    //correct password
+                        })
+                        .fail(function(){
+                           $("#hostpw .alert").show();
+                            setTimeout(function(){$("#hostpw .alert").hide();},2500);
+                        });;
+
+                        return b.promise();
+                }
+
+                pw(pass).then(function(data){
+                    $.post('/api/v1/set_hostname',{new_hostname: new_hostname})
+                                .success(function(){
+                                    //mention that the password change was successful
+                                    self.host(new_hostname);
+                                    $("#hostpw input").val('');
+                                    $('#hostpw').collapse('hide');
+                                })
+                                .fail(function(err){
+                                    $('#hostpw form').toggleClass("has-error");
+                                    setTimeout(function(){
+                                        $('#hostpw form').toggleClass("has-error")}
+                                        ,3000);
+                                    console.log(err);
+                    });
+                });
+
+                
+
+            }
+
+            self.updateArray = function(observableArray){
+                //WHY DOES THIS FUNCITON HAVE TO EXIST? I should explain at some point. 
+                var old = observableArray.splice(0,observableArray().length);
+                for(var i = 0; i < old.length;i++){
+                    observableArray.push(old[i]);
+                }
+            }
+
+            
+        };
+
+         ko.bindingHandlers.sort = {
+            init: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var asc = false;
+                element.style.cursor = 'pointer';
+                
+                element.onclick = function(){
+                    var value = valueAccessor();
+                    var prop = value.prop;
+                    var data = value.arr;
+                    
+                    asc = !asc;
+                    if(asc){
+                        data.sort(function(left, right){
+                            return left[prop] == right[prop] ? 0 : left[prop] < right[prop] ? -1 : 1;
+                        });
+                    } else {
+                        data.sort(function(left, right){
+                            return left[prop] == right[prop] ? 0 : left[prop] > right[prop] ? -1 : 1;
+                        });
+                    }
+                }
+            }
+        };
+
+        function confirmSuperPW(pass,callback){
+            if (typeof callback === "function") {
+                // 1. CONFIRM PASSWORD HERE
+                $.post("/api/v1/validate_action", {
+                    'password': pass
+                }).success(function(){
+                    callback(true);
+                }).fail(function(){
+                    callback(false);
+                });
+            }
+        }
+
+        function confirmAdminPW(pass,callback){
+            if (typeof callback === "function") {
+                // 1. CONFIRM PASSWORD HERE
+                $.post("/api/v1/validate_admin_action", {
+                    'password': pass
+                }).success(function(){
+                    callback(true);
+                }).fail(function(){
+                    callback(false);
+                });
+            }
+        }
+        
+
+        function format2MoneyStr(price){
+            var priceAbs = Math.abs(price);
+            if (price == 0.00){
+                return "$" + priceAbs.toFixed(2);
+            }
+            else if (price > 0.00){
+                return "+$" + priceAbs.toFixed(2);
+            }
+            else {
+                return "-$" + priceAbs.toFixed(2);
+            }
+        }
+
+        function isPin(val){
+            //check if val is a string
+            if(typeof val != 'string' || val instanceof String){val = val.toString();}
+            //check if val is an integer; not ""; 4 digits long
+            if((val % 1 === 0) && (val != "") && val.length === 4){ return true; }
+            return false;
+        }
+
+
+        $(document).ready(function(){
+            window.viewModel = new ViewModel(); // don't delete in production. just remove "window"
+            ko.applyBindings(window.viewModel);
+
+            $("#exportStart").datepicker();
+            $("#exportEnd").datepicker();
+
+            $('#myTab a').click(function (e) {
+              e.preventDefault()
+              $(this).tab('show')
+            });
+
+           $('#saveBtns').click(function(){
+                $.post('/api/v1/admin/buttons',{credit: viewModel.addBtns(), payment: viewModel.payBtns()});
+           })
+
+           $("form").submit(function(e){
+                e.preventDefault();
+           });
+
+           $(".mainSelectionBtn").click(function(){
+                $(this).closest(".modal").find(".m-mainSelection").toggleClass('isHidden');
+           });
+
+        });
+	</script>
+	</body>
+</html>

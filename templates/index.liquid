@@ -1,0 +1,874 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+        <link href="css/bootstrap.css" rel="stylesheet" media="screen">
+        <link href="css/style.css" rel="stylesheet">
+        <title>Giftcard: {% if first_name || last_name %}{{ first_name }} {{ last_name }}{% else %}#{{id}}{% endif %} | {{ location }}</title>
+    </head>
+
+    <body>
+
+    {% if disabled != 1 %}
+        {% if pinmode_enabled == 1 %}
+        <div id="pinWindow-container">
+
+            <div class="top">
+                <div class="alert alert-danger text-center isHidden">Invalid Pin. Try again.</div>
+            </div>
+            <div class="middle">
+                <form>
+                    <input  class="form-control input-lg" 
+                            type="text" 
+                            pattern="[0-9]*" 
+                            placeholder="_ _ _ _"
+                            data-bind="value: serverPin, valueUpdate: 'keyup'">
+                </form>
+            </div>
+            <div class="bottom"></div>
+        </div>
+        {% endif %} 
+    {% endif %}   
+    <div id="main-container" class='container'>
+        <div class="row">
+<!-- MAINCOLUMN -->
+            {% if disabled %}
+            <div id="menu-wrapper" class="hidden-xs hidden-sm hidden-md hidden-lg">
+            {% else %}
+            <div id="menu-wrapper" class="col-xs-12 col-sm-6 col-md-7">
+            {% endif %}
+
+                <div id="location-wrapper" class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <h1><strong>{{ location }}</strong></h1>
+                    </div>
+                </div>
+
+                <!-- ADD AMOUNT -->
+                <div class="row">
+                    <div class="transaction-wrapper" data-bind="visible: addCreditToggle()">
+                        <div class="row"> 
+                            <div class="col-sm-12 col-md-12" >
+                                <div class="input-group">
+                                    <span class="input-group-addon"><h3>+$</h3></span>
+                                    <form id="addForm">
+                                        <input class="form-control input-lg" id="addText" type="text" pattern="[0-9]*" placeholder="0.00" data-bind="value: addInputValueCalc, valueUpdate: 'keyup' " name="qr_body">
+                                    </form>
+                                </div>
+                                <div class="btn-group" data-bind="foreach: addBtns()">
+                                    <!-- ko if: active -->
+                                    <button type="button" class="btn"
+                                            data-type="add" 
+                                            data-bind="text:'$'+value.toFixed(2), 
+                                                        value: value,
+                                                        enable: !isNaN(viewModel.addInputValue()),
+                                                        valueUpdate: 'keyup' "></button>
+                                    <!-- /ko -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" > 
+                            <div class="col-sm-6  col-md-6 " >
+                                <button type="button" class="btn btn-success confirm-btn" data-bind="click: function(){
+                                    var input = parseFloat( $('#addText').val() );
+                                    confirmPayment(input,'addText');
+                                },
+                                enable: inputCheck(addInputValue())">Add</button>
+                            </div>
+                            <div class="col-sm-6 col-md-6">
+                                <button type="button" class="btn btn-danger confirm-btn" 
+                                         
+                                        data-bind="click: function(){
+                                                    addCreditToggle(false); 
+                                                    $('#addText').val(''); // reset value
+                                                    $('#addText').trigger('keyup');
+                                }">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MAKE PAYMENT -->
+                <div class="row">
+                    <div class="transaction-wrapper" data-bind="visible: makePaymentToggle()">
+                        <div class="row"> 
+                            <div class="col-sm-12 col-md-12" >
+                                <div class="input-group">
+                                    <span class="input-group-addon"><h3>-$</h3></span>
+                                    <form id="paymentForm">
+                                        <input class="form-control input-lg" id="paymentText" type="text" pattern="[0-9]*" placeholder="0.00" data-bind="value: payInputValueCalc, valueUpdate: 'keyup'" type="tel" name="qr_body">
+                                    </form>
+                                </div>
+                                <div class="btn-group" data-bind="foreach: payBtns()">
+                                    <!-- ko if: active -->
+                                    <button type="button" class="btn"
+                                     data-type="payment" 
+                                     data-bind="text:'$'+value.toFixed(2), 
+                                                value: value,
+                                                enable: !isNaN(viewModel.payInputValue()),
+                                                valueUpdate: 'keyup' "></button>
+                                    <!-- /ko -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="confirmation-wrapper row" > 
+                            <div class="col-sm-6  col-md-6 " >
+                                <button type="button" class="btn btn-success confirm-btn" data-bind="click: function(){
+                                    var input = parseFloat( $('#paymentText').val() );
+                                    confirmPayment(-1*input,'paymentText');
+                                },
+                                enable: (inputCheck(payInputValue())) && (payInputValue() <= GC.balance())">Pay</button>
+                            </div>
+                            <div class="col-sm-6 col-md-6">
+                                <button type="button" class="btn btn-danger confirm-btn" data-bind="click: function(){
+                                    makePaymentToggle(false);
+                                    $('#paymentText').val(''); // reset value
+                                    $('#paymentText').trigger('keyup');   // reset enable button property
+                                }">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADDCREDIT AND MAKE PAYMENT BUTTONS -->
+                <div id="addcredit-makepayment-wrapper" data-bind="visible: !addCreditToggle() && !makePaymentToggle()">
+                    <div class="row" > 
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <button type="button" 
+                                    class="btn btn-success btn-lg" 
+                                    data-bind= "click: function(){addCreditToggle(true);},
+                                                enable: !GC.disabledDate">Add Credit</button>
+                        </div>
+                        <div class="col-xs-12 col-sm-12 col-md-6">
+                            <button type="button" 
+                                    class="btn btn-info btn-lg" 
+                                    data-bind="click: function(){makePaymentToggle(true);},
+                                               enable: !GC.disabledDate">Make Payment</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+<!-- TRANSACTIONS COLUMN -->
+            {% if disabled %}
+            <div id="trans-history-wrapper" class="col-xs-12 col-sm-12 col-md-12" style="border-radius: 5px;">
+            {% else %}
+                <div id="trans-history-wrapper" class="col-xs-12 col-sm-6 col-md-5">
+            {% endif %}
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        
+                        {% if disabled %}
+                        <h3>Giftcard #{{ id }}: 
+                            <span data-bind="text:GC.firstName()"></span>
+                            <span data-bind="text:GC.lastName()"></span>
+                            <span style="float: right"> 
+                                Created: <span data-bind="text:customDateFormat(GC.create_date)"></span>
+                            </span>
+                        </h3>
+                        <div class='alert alert-danger text-center' style='font-size: 18pt; margin:0;padding:0;'>
+                            <strong>Disabled: <span data-bind="text:customDateFormat(GC.disabledDate)"></span></strong>
+                        </div>
+                        {% else %}
+                        <h3>Giftcard #{{ id }}: 
+                            <span data-bind="text:GC.firstName()"></span>
+                            <span data-bind="text:GC.lastName()"></span>
+                        </h3>
+                        <h3>Created: <span data-bind="text:customDateFormat(GC.create_date)"><span></h3>
+                        {% endif %}
+                        
+                        <h2> Transaction History </h2>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-sm-12 col-md-12">
+                        <div id='tableh-wrapper'> 
+                            <table class="table-condensed table-hover table-bordered trans-history-table">
+                                <thead>
+                                    <th>No.</th>
+                                    <th>Timestamp</th>
+                                    <th>Amount</th>
+                                    <th></th>
+                                </tr></thead>
+                            </table>
+                        </div>
+                        <div id="list-wrapper"> 
+                            <div id="scroller">  
+                            <table  class="table-condensed table-bordered trans-history-table">
+                                    <tbody  data-bind="foreach: GC.transactions()">
+                                        <!-- ko if: isDisabled() -->
+                                        <tr class='isDisabled'>
+                                            <td class="text-center"  data-bind="text: $index()"></td>
+                                            <td data-bind="text: customDateFormat(timestamp,true)"></td>
+                                            <td data-bind="text: format2MoneyStr(amount())"></td>
+                                            <td >
+                                                <button type="button" 
+                                                        class="close" 
+                                                        data-bind=" click: $root.removeTrans,
+                                                                    enable: !viewModel.GC.disabledDate && !isDisabled()"
+                                                        style="font-size:18pt; width:50px;"></button></td>
+                                        </tr>
+                                        <!-- /ko -->
+                                        <!-- ko ifnot: isDisabled() -->
+                                        <tr>
+                                            <td class="text-center"  data-bind="text: $index()"></td>
+                                            <td data-bind="text: customDateFormat(timestamp,true)"></td>
+                                            <td data-bind="text: format2MoneyStr(amount())"></td>
+                                            <td >
+                                                <button type="button" 
+                                                        class="close" 
+                                                        data-bind=" click: $root.removeTrans,
+                                                                    enable: !viewModel.GC.disabledDate && !isDisabled()"
+                                                        style="font-size:18pt; width:50px;">&times;</button></td>
+                                        </tr>
+                                        <!-- /ko -->  
+                                    </tbody>    
+                            </table>
+                            </div>
+                        </div>
+                        <!-- </div> -->
+                        <h3>Total Balance: <span data-bind="text: format2MoneyStr(GC.balance()).slice(1)"></span></h3>
+                        <h3>No. of Transactions: <span data-bind="text: GC.transactions().length"></span></h3>
+                        
+                    </div>
+                </div>
+            </div>
+        </div> <!-- main row -->
+    </div> <!-- container --> 
+
+
+<!-- %%% MODALS %%% -->
+    <div class="modal fade" id="disableModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title"><h3>Disable Transaction?</h3></h4>
+            </div>
+            <div class="modal-body">
+                    <table class="table table-bordered text-center"><tr>
+                    <td><span data-bind="text: format2MoneyStr(GC.currTransaction().amount())"></td>
+                    <td><span data-bind="text: GC.currTransaction().timestamp"></span></td>
+                    </tr></table>
+                    <h3>Current Balance: <span data-bind="text: format2MoneyStr(GC.balance())"></span></h3>
+                    <h3>Effective Balance: <span data-bind="text: format2MoneyStr(GC.balance()- GC.currTransaction().amount())"></span></h3>
+            </div>
+            <div class="modal-footer">
+              <h3 class="text-left">Supervisor Password:</h3>
+               <form class='password pwForm'>
+                <input class="form-control password" type="password"  placeholder="password">
+               </form>
+               <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+          </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="introModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                  <h4 class="modal-title"><h3>Giftcard Setup</h3></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row m-mainSelection">
+                            <div class="col-xs-4 col-sm-4 col-md-4" >
+                                <button type="button" class="btn btn-lg btn-default" data-target="m-userInfo" >New Card</button>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4" >
+                                <button type="button" class="btn btn-lg btn-default" data-target="m-transferCard">Transfer Card</button>
+                            </div>
+                            <div class="col-xs-4 col-sm-4 col-md-4" >
+                                <button type="button" class="btn btn-lg btn-default" data-target="m-superCard">Super Card</button>
+                            </div>
+                    </div>
+
+                    <div class='m-userInfo isHidden'> 
+                        <table class="table">
+                            <tr>
+                                <td class="text-right">First Name:</td>
+                                <td>
+                                    <form class='firstNameForm'>
+                                        <input class="form-control" placeholder="first name">
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-right">Last Name:</td>
+                                <td>
+                                    <form class='lastNameForm'>
+                                        <input class="form-control" placeholder="last name">
+                                    </form>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="text-right">Email:</td>
+                                <td>
+                                    <form class='emailForm'>
+                                        <input class="form-control" type="email" placeholder="name">
+                                    </form>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class = "row">
+                            <div class="col-xs-6 col-sm-6 col-md-6" >
+                                <button type="button" class="btn btn-lg btn-default" data-bind="click: createIdentity">Submit</button>
+                            </div>
+                            <div class="col-xs-6 col-sm-6 col-md-6" >
+                                <button type="button" class="btn btn-lg btn-default cancel-btn" data-target="m-userInfo">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='m-transferCard isHidden'> 
+                        <p>
+                        The giftcard being transfered must already be <u>disabled</u>. 
+                        </p>
+                        <table class="table">
+                            <tr>
+                            <td class="text-right">Disabled Giftcard ID:</td>
+                                <td>
+                                    <form class='oldIDForm'>
+                                        <input class="form-control" placeholder="id">
+                                    </form>
+                                </td>
+                            </tr>
+                        </table>
+                        <div class="m-footer">
+                          <h3 class="text-left">Supervisor Password:</h3>
+                           <form class='password' data-bind='submit: transferIdentity'>
+                            <input  class="form-control password" 
+                                    type="password" 
+                                    placeholder="password"
+                                    >
+                                    <div class="row">
+                                        <div class="col-xs-6 col-sm-6 col-md-6">
+                                            <button type="submit" class="btn btn-lg btn-default fullWidth">Submit</button>
+                                        </div>
+                                        <div class="col-xs-6 col-sm-6 col-md-6">
+                                            <button type="button" class="btn btn-lg btn-default cancel-btn fullWidth" data-target="m-transferCard">Cancel</button>
+                                        </div>
+                                    </div>
+                           </form>
+                        </div>
+                    </div>
+                    <div class='m-superCard isHidden'> 
+                        <p class="text-center">
+                        A supercard can be used to view the current day's transaction history. 
+                        </p>
+                        <div class="m-footer">
+                          <h3 class="text-left">Supervisor Password:</h3>
+                           <form class='password' data-bind='submit: addSuperCard'>
+                            <input  class="form-control password" 
+                                    type="password"
+                                    placeholder="password">
+                                    <div class="row">
+                                        <div class="col-xs-6 col-sm-6 col-md-6">
+                                            <button type="submit" class="btn btn-lg btn-default fullWidth">Submit</button>
+                                        </div>
+                                        <div class="col-xs-6 col-sm-6 col-md-6">
+                                            <button type="button" class="btn btn-lg btn-default cancel-btn fullWidth" data-target="m-superCard" >Cancel</button>
+                                        </div>
+                                    </div>
+                           </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> <!-- end of modal -->
+
+</div>
+    
+
+
+    <script type="text/javascript" src="js/jquery.js"></script>
+    <script type="text/javascript" src="js/underscore.js"></script>
+    <script type="text/javascript" src="js/knockout-2.3.0.js"></script>
+    <script type="text/javascript" src="js/bootbox.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.js"></script>
+    <script type="text/javascript" src="js/iscroll.js"></script>
+    <script type="text/javascript" src="js/fastclick.js"></script>
+
+        <!-- KNOCKOUT JS -->
+    <script type="text/javascript">
+
+        var user_id;
+        var listScroll;
+        var numListItems = 8; //constant defining number of transactions displayed
+
+        // Class to represent a Giftcard
+        function GiftcardClass() {
+            var self = this;
+            self.id = {{ id|json }};
+            self.create_date = new Date({{create_date}}*1000);
+            {% if disabled %}
+            self.disabledDate = new Date({{disabled_date}}*1000);
+            {% else %}
+            self.disabledDate = false;
+            {% endif %}
+
+            self.transactions = ko.observableArray();
+            {% for trans in transactions %}
+                self.transactions.push(new TransactionClass(new Date({{trans.date}}*1000), 
+                                                                {{trans.amount}}, 
+                                                                {{trans.id}},
+                                                                {{trans.is_disabled}}));
+            {% endfor %}
+
+            self.currTransaction = ko.observable(new TransactionClass(new Date(), 0, 0));
+
+            self.balance = ko.computed(function(){
+                var total = 0.00;
+                for ( i = 0; i < self.transactions().length; i++){
+                    if(!self.transactions()[i].isDisabled()){
+                        total += self.transactions()[i].amount();
+                    }
+                }
+                return total;
+            });
+
+            self.firstName = ko.observable("{{ first_name }}");
+            self.lastName = ko.observable("{{ last_name }}");
+        }
+
+        // Class to represent a transaction
+        function TransactionClass(timestamp, amount, id, isDisabled) {
+            var self = this;
+            self.timestamp = timestamp;
+            self.amount = ko.observable(amount); 
+            self.trans_id = id; 
+            self.isDisabled = ko.observable(isDisabled);
+        }
+
+        // Overall viewmodel for this screen, along with initial state
+        function TransactionsViewModel() {
+            var self = this;   
+
+            self.GC = new GiftcardClass();
+
+            self.addInputValue = ko.observable('');
+            self.addInputValueCalc = ko.computed({
+                read: function(){
+                    var val = self.addInputValue();
+                    if(inputCheck(val)){
+                           return format2cashier(val);
+                    }
+                    return val;  
+                },
+                write: function(val){
+                    self.addInputValue(val);
+                },
+                owner: self
+            }); 
+
+
+            self.payInputValue = ko.observable('');
+            self.payInputValueCalc = ko.computed({
+                read: function(){
+                    var val = self.payInputValue();
+                    if(inputCheck(val)){
+                        return format2cashier(val);
+                    }
+                    return val;
+                },
+                write: function(val){ 
+                    self.payInputValue(val);
+                },
+                owner: self
+            }); 
+
+            self.addCreditToggle = ko.observable(null);
+            self.makePaymentToggle = ko.observable(null);
+            
+            self.addBtns = ko.observableArray();
+            {% for btn in credit %}
+                self.addBtns.push({'value': {{btn.value}}, 'active': {{btn.enabled}}})
+            {% endfor %}
+
+            self.payBtns = ko.observableArray();
+            {% for btn in payment %}
+                self.payBtns.push({'value': {{btn.value}}, 'active': {{btn.enabled}}})
+            {% endfor %}
+
+            self.serverPin = ko.observable("");
+
+            //Make Transaction
+            self.addTrans = function(val,timestamp){
+                if(typeof timestamp === "undefined") {timestamp = new Date();}
+
+                // 1. Add the transaction to the SQL server
+                $.post("/api/v1/giftcard/" + self.GC.id.toString() + "/transactions", { amount: val, user_id: user_id})
+                    .success(function(res){
+                        // 2. once the transaction is confirmed then update the webpage. 
+                        self.GC.transactions.push(new TransactionClass(timestamp, val,res.id));
+                        //force  a scroll to bottom of the transactionslist:
+                        listScroll.refresh();
+                        if (self.GC.transactions().length > numListItems){
+                            listScroll.scrollTo(0,-($("#scroller").height() - $("#list-wrapper").height()),0);
+                        }
+                    })
+                    .fail(function(err){
+                        console.log("Error: "+ err);
+                    });     
+            }
+
+            //Disable Transaction
+            self.removeTrans = function(trans) {
+
+                if (self.GC.balance() >= trans.amount()){
+                    var modal = $('#disableModal');
+            
+                    function showModal(trans, callback){
+                        if (typeof callback === "function") {
+                            self.GC.currTransaction(trans);
+                            modal.modal('show');
+                            modal.find('.password').submit(function(e){
+                                e.preventDefault();
+                                callback($('#disableModal .pwForm input').val());
+                            });
+                        }
+                    }
+
+                    pw = function(pass){
+                        var b = new jQuery.Deferred();
+                        $.post("/api/v1/validate_action", {
+                            'password': pass
+                        }).success(function(){
+                            b.resolve();  
+                        })
+                        .fail(function(){
+
+                        });
+                        return b.promise();
+                    } 
+
+                    // unbind the modal when it closes
+                    modal.on('hide.bs.modal', function () {
+                            modal.find("form").unbind('submit');
+                            modal.find('.password').val('');
+                    });
+
+                    // button handlers
+                    $('#disableModal .m-mainSelection button, #disableModal .cancel-btn').click(function()
+                    {
+                        $(".m-mainSelection").toggleClass('isHidden');
+                        $("."+$(this).data('target')).toggleClass('isHidden');
+                    });
+
+                    //show modal
+                    showModal(trans,function(pass){
+                        // validate the admin password
+                        pw($(modal).find('.password input').val()).then(
+                        function(data){
+                            var d = new jQuery.Deferred();
+                            $.post("/api/v1/giftcard/"+self.GC.id.toString()+"/transactions/"+trans.trans_id.toString(),{user_id: user_id})
+                            .success(function(){
+                                trans.isDisabled(true);
+                                listScroll.refresh();
+                                $('#disableModal').modal('hide');
+                            })
+                            .fail(function(err){
+                                console.log(err);
+                            });  
+                        });
+                    });     
+                }
+            }
+            self.createIdentity = function(data,event)
+            {
+                var parent = $("#introModal .m-userInfo");
+                var firstName = parent.find(".firstNameForm input").val();
+                var lastName = parent.find(".lastNameForm input").val();
+                var email = parent.find(".emailForm input").val();      
+    
+                $.post("/api/v1/giftcard/" + self.GC.id.toString() + "/set_metadata", 
+                    {   first_name: firstName, 
+                        last_name:lastName, 
+                        email:email,
+                        user_id: user_id
+                    })
+                    .success(function(res){
+                        self.GC.firstName(firstName);
+                        self.GC.lastName(lastName);
+                        $('#introModal').modal('hide');
+                    })
+                    .fail(function(err){
+                        console.log("Error: "+ err);
+                    });    
+            }
+
+            self.transferIdentity = function(data,event)
+            {
+                var modal = $('#introModal');
+                var old_id = modal.find(".m-transferCard .oldIDForm input").val();
+
+                pw = function(pass){
+                    var b = new jQuery.Deferred();
+                    $.post("/api/v1/validate_action", {
+                        'password': pass
+                    }).success(function(){
+                        b.resolve();  
+                    })
+                    .fail(function(){
+                        modal.find('form.password').toggleClass("has-error");
+                        setTimeout(function(){modal.find('form.password').toggleClass("has-error");},2500);
+                    });
+                    return b.promise();
+                } 
+
+                // validate the admin password
+                pw($(modal).find('.m-transferCard .password input').val()).then(
+                function(data){
+                    var d = new jQuery.Deferred();
+                    $.post("/api/v1/transfer_giftcard", 
+                    {   old_id: old_id, 
+                        new_id: self.GC.id,
+                        user_id: user_id
+                    })
+                    .success(function(){
+                        modal.modal('hide');
+                        location.reload();
+                    })
+                    .fail(function(e){
+                        console.log(e);
+                    });
+                });
+
+                // unbind the modal when it closes
+                modal.on('hide.bs.modal', function () {
+                        modal.find("form").unbind('submit');
+                        modal.find('.password').val('');
+                });
+
+                // button handlers
+                $('#introModal .m-mainSelection button, #introModal .cancel-btn').click(function()
+                {
+                    $(".m-mainSelection").toggleClass('isHidden');
+                    $("."+$(this).data('target')).toggleClass('isHidden');
+                });  
+            }
+            self.addSuperCard = function(data,event)
+            {
+                var modal = $('#introModal');
+
+                pw = function(pass){
+                    var b = new jQuery.Deferred();
+                    $.post("/api/v1/validate_action", {
+                        'password': pass
+                    }).success(function(){
+                        b.resolve();
+                    })
+                    .fail(function(){
+                        modal.find('form.password').toggleClass("has-error");
+                        setTimeout(function(){modal.find('form.password').toggleClass("has-error");},2500);
+                    });
+                    return b.promise();
+                } 
+
+                // validate the admin password
+                pw($(modal).find('.m-superCard .password input').val()).then(
+                function(data){
+                    var d = new jQuery.Deferred();
+                    $.post("/api/v1/giftcard/" + self.GC.id.toString() + "/set_metadata", 
+                    {   first_name: 'SUPERCARD', 
+                        last_name:'', 
+                        email:'',
+                        super: true,
+                        user_id: user_id
+                    })
+                    .success(function(res){
+                        location.reload();
+                    })
+                    .fail(function(err){
+                        console.log("Error: "+ err);
+                    });   
+                });
+
+                // unbind the modal when it closes
+                modal.on('hide.bs.modal', function () {
+                        modal.find("form").unbind('submit');
+                        modal.find('.password').val('');
+                });  
+            }
+        }
+
+        viewModel = new TransactionsViewModel(); // don't delete in production. just remove "window"
+        ko.applyBindings(viewModel);
+
+        // ###############################
+        // ### CUSTOM NON-KO FUNCTIONS ###
+
+        function confirmPayment(amount,id){
+            bootbox.dialog({
+                        message:  "<h3>Are you sure?</h3></br></br>"+
+                            "<table class='table table-bordered text-center'><tr>"+
+                            "<td><h1>"+format2MoneyStr(amount)+"</h1></td>"+
+                            "</tr></table>"+
+                            "<h3>Current Balance: "+format2MoneyStr(viewModel.GC.balance())+"</h3>"+
+                            "<h3>Effective Balance: "+format2MoneyStr(viewModel.GC.balance()+amount)+"</h3>",
+                        buttons: {
+                            success: {
+                                label: "Confirm",
+                                className: "btn-success confirm-btn",
+                                callback: function() {
+                                        viewModel.addTrans(amount);
+                                        viewModel.addCreditToggle(false);
+                                        viewModel.makePaymentToggle(false);
+                                        $('#'+id).val(''); // reset value
+                                        $('#'+id).trigger('keyup');
+                                }
+                            },
+                            danger: {
+                                label: "Cancel",
+                                className: "btn-danger confirm-btn"
+                            }
+                        }
+            });
+
+        }
+
+        function inputCheck(val){
+                // 1. Check if the value is an interger
+                // 2. Check that the value is at minimum 1 cent
+                if (!isNaN(val) && parseFloat(val) >= 0.01)
+                    return true;
+                else
+                    return false;
+        }
+
+        function addToInputField(id,val){
+            if ($(id).val() ==""){
+                var currInputVal = 0.00;
+            }
+            else {
+            var currInputVal = parseFloat($(id).val());
+            }
+                currInputVal = currInputVal + val;
+            $(id).val(currInputVal.toFixed(2));
+            $(id).keydown();
+        }
+
+        // format integer to string. Example: "+$1.25" or "-$3.45"
+        function format2MoneyStr(price){
+            var priceAbs = Math.abs(price);
+            if (price == 0.00){
+                return "$" + priceAbs.toFixed(2);
+            }
+            else if (price > 0.00){
+                return "+$" + priceAbs.toFixed(2);
+            }
+            else {
+                return "-$" + priceAbs.toFixed(2);
+            }
+        }
+
+        //format input cashier style. That means entering "144" equals $1.44
+        function format2cashier(val){
+            val = val.replace(".","");
+            if(val){
+                return val = (val/100).toFixed(2);
+            }
+            return "";
+        }
+
+        function customDateFormat(d,withTime){
+            var date = (d.getDate().toString().length==1)?'0'+d.getDate().toString():d.getDate().toString();
+            var month = ((d.getMonth()+1).toString().length==1)?'0'+(d.getMonth()+1).toString():(d.getMonth()+1).toString();
+            var year = d.getFullYear().toString().substring(2,4);
+
+            if (withTime){
+                return d.toTimeString().substring(0,5)+" "+month+"/"+date+"/"+year
+            }
+
+            return month + "/" + date + "/" + year
+        }
+
+        $(document).ready(function(){
+
+            //Activate Fastclick
+            FastClick.attach(document.body);
+            
+            // Remove rubberbanding effect [ CURRENTY ONLY ON IPAD ]
+            if(navigator.userAgent.match(/iPad/i) != null){
+                document.body.addEventListener('touchmove', function(e){ e.preventDefault(); });
+            }
+
+            // Activate iScroll (makes scrolling more fluid on tablets)
+            listScroll = new iScroll('list-wrapper',{snap:false, hideScrollbar: true});
+            if(viewModel.GC.transactions().length > numListItems){
+                listScroll.scrollTo(0,-($("#scroller").height() - $("#list-wrapper").height()),0);
+            }
+
+            //close keyboard with enter key
+            $("form").submit(function(e){
+                console.log("submit!")
+                e.preventDefault(); //prevent page refresh
+                $(this).children('input').blur();//closes the ipad keyboard
+            });
+
+            //For price buttons. Ex: $1.25, $2.50, $3.75 buttons
+            $(".transaction-wrapper .btn-group .btn").click(function(){
+                var inputFieldID = "#"+$(this).data('type')+'Text';
+                addToInputField(inputFieldID,parseFloat(this.value));
+                $(inputFieldID).trigger('keyup'); // updating the buttons 
+            });
+
+            
+
+            $("#pinWindow-container form").children('input').focus();
+                {% if pinmode_enabled == 1 %}
+                    $("#pinWindow-container form").submit(function(){
+                        var self = this;
+                        var pin = $(self).children('input').val();
+                        window.test = pin;
+                        if(pin.length === 4){
+                            $.post("/api/v1/user/validate_pin", {
+                            'pin': pin
+                            }).success(function(res){
+                                user_id = res.user_id;
+                                $(self).toggleClass("has-success");
+                                $("#pinWindow-container").toggleClass('fadeOut');
+                                setTimeout(function(){
+                                    $("#pinWindow-container").toggleClass('isHidden');
+                                    if(viewModel.GC.transactions().length === 0 
+                                        && viewModel.GC.firstName() === "" 
+                                        && viewModel.GC.lastName() === "" ){
+                                        $('#introModal').modal('show');
+                                    }
+                                },300);
+
+                            }).fail(function(err){
+                                $(self).toggleClass("has-error");
+                                $("#pinWindow-container .alert-danger").fadeIn();            
+                                setTimeout(function(){
+                                    $(self).toggleClass("has-error");
+                                    $("#pinWindow-container .alert-danger").fadeOut();  
+                                },2000);
+                                console.log(err);
+                            });
+                        }
+                        else{
+                            $(self).toggleClass("has-error");
+                            $("#pinWindow-container .alert-danger").fadeIn();           
+                            setTimeout(function(){
+                                $(self).toggleClass("has-error");
+                                $("#pinWindow-container .alert-danger").fadeOut();
+                            },2000);
+                        }   
+                    });
+                {% else %}
+                    if(viewModel.GC.transactions().length === 0 
+                                        && viewModel.GC.firstName() === "" 
+                                        && viewModel.GC.lastName() === "" ){
+                                        $('#introModal').modal('show');
+                    }
+                {% endif %}
+        });//end ofdocument ready
+    </script>
+    </body>
+</html>

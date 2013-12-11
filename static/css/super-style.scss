@@ -1,0 +1,45 @@
+$border-radius: 8px;
+
+.container{
+	box-shadow: 0px 0px 5px #888888;
+	border: 1px solid #AAA;
+	border-radius: $border-radius;
+	height:96%;
+	width: 98%;
+	margin:{
+		top: 1%;
+		bottom: 1%;
+		left: 1%;
+		right:1%;
+	}
+}
+
+#scroller{
+	width: 100%;
+	table, tbody{
+		width:100%;
+		tr,td{
+			height: 20%;
+			max-height: 30px;
+		}
+	}	
+}
+#list-wrapper{max-height: 55%;}
+
+div.tables-wrapper{
+	.table{margin: 0}
+	margin-left:2%;
+	margin-right:2%;
+	td,th{
+		text-align: center;
+		&:nth-child(1){width: 7%;}
+		&:nth-child(2){width: 35%;}
+		&:nth-child(3){width: 18%;}
+		&:nth-child(4){width: 40%;}
+	}
+}
+div.content-wrapper{
+	margin-left:2%;
+	margin-right:2%;
+}
+

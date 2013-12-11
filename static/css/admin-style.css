@@ -1,0 +1,103 @@
+#giftcardsContainer {
+  width: 100%; }
+  #giftcardsContainer table {
+    width: 100%; }
+    #giftcardsContainer table tr td {
+      text-align: center; }
+    #giftcardsContainer table tr th {
+      text-align: center;
+      border-bottom: 0px; }
+    #giftcardsContainer table tr td:nth-child(1), #giftcardsContainer table tr th:nth-child(1) {
+      width: 4%; }
+    #giftcardsContainer table tr td:nth-child(2), #giftcardsContainer table tr th:nth-child(2) {
+      width: 20%; }
+    #giftcardsContainer table tr td:nth-child(3), #giftcardsContainer table tr th:nth-child(3) {
+      width: 28%; }
+    #giftcardsContainer table tr td:nth-child(4), #giftcardsContainer table tr th:nth-child(4) {
+      width: 15%; }
+    #giftcardsContainer table tr td:nth-child(5), #giftcardsContainer table tr th:nth-child(5) {
+      width: 15%; }
+    #giftcardsContainer table tr td:nth-child(6), #giftcardsContainer table tr th:nth-child(6) {
+      width: 11%; }
+    #giftcardsContainer table tr td:nth-child(7), #giftcardsContainer table tr th:nth-child(7) {
+      width: 7%; }
+    #giftcardsContainer table tr td button, #giftcardsContainer table tr th button {
+      float: center; }
+
+#giftcardList {
+  display: block;
+  margin: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 100%; }
+
+#transactionsContainer {
+  width: 100%; }
+  #transactionsContainer table {
+    width: 100%; }
+    #transactionsContainer table tr td, #transactionsContainer table tr th {
+      text-align: center; }
+    #transactionsContainer table tr th {
+      border-bottom: 0px; }
+    #transactionsContainer table tr td:nth-child(1), #transactionsContainer table tr th:nth-child(1) {
+      width: 7%;
+      min-width: 50px; }
+    #transactionsContainer table tr td:nth-child(2), #transactionsContainer table tr th:nth-child(2) {
+      width: 14%;
+      min-width: 100px; }
+    #transactionsContainer table tr td:nth-child(3), #transactionsContainer table tr th:nth-child(3) {
+      width: 50%;
+      min-width: 350px; }
+    #transactionsContainer table tr td:nth-child(4), #transactionsContainer table tr th:nth-child(4) {
+      width: 29%;
+      min-width: 200px; }
+  #transactionsContainer #transactionList {
+    display: block;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%; }
+
+.tab-pane {
+  min-height: 700px;
+  padding-left: 5%;
+  padding-right: 5%; }
+
+.how-many {
+  margin-bottom: 15px; }
+
+.row-custom {
+  margin: 0; }
+
+#settings #addBtnsWrapper table, #settings #payBtnsWrapper table {
+  width: 100%; }
+  #settings #addBtnsWrapper table tr, #settings #payBtnsWrapper table tr {
+    width: 100%; }
+  #settings #addBtnsWrapper table td, #settings #payBtnsWrapper table td {
+    border-right: 1px solid #eeeeee; }
+    #settings #addBtnsWrapper table td:last-child, #settings #payBtnsWrapper table td:last-child {
+      border-right: 0; }
+    #settings #addBtnsWrapper table td .form-control, #settings #payBtnsWrapper table td .form-control {
+      width: 80%;
+      margin-left: 10%;
+      text-align: center; }
+    #settings #addBtnsWrapper table td .checkboxWrapper, #settings #payBtnsWrapper table td .checkboxWrapper {
+      width: 70%; }
+      #settings #addBtnsWrapper table td .checkboxWrapper .checkbox, #settings #payBtnsWrapper table td .checkboxWrapper .checkbox {
+        display: inline-block;
+        float: right; }
+
+.isHidden {
+  display: none; }
+
+.modal-btn1 {
+  width: 100%; }
+
+input.password {
+  text-align: center;
+  height: 75px;
+  font-size: 25pt;
+  margin-bottom: 10px; }
+
+.inline {
+  display: inline; }

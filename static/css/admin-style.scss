@@ -1,0 +1,124 @@
+$tLWidth1 : 50px;
+$tLWidth2 : 100px;
+$tLWidth3 : 350px;
+$tLWidth4 : 200px;
+$gLWidth1 : 50px;
+$gLWidth2 : 50px;
+$gLWidth4 : 350px;
+$gLWidth5 : 350px;
+$gLWidth6 : 75px;
+
+#giftcardsContainer{
+	width:100%;
+	table{
+		width: 100%;
+		tr{
+			td{text-align:center;}
+			th{
+				text-align:center;
+				border-bottom: 0px;
+			}
+			td,th{&:nth-child(1){width:4%;}}
+			td,th{&:nth-child(2){width:20%;}}
+			td,th{&:nth-child(3){width:28%;}}
+			td,th{&:nth-child(4){width:15%;}}
+			td,th{&:nth-child(5){width:15%;}}
+			td,th{&:nth-child(6){width:11%;}}
+			td,th{&:nth-child(7){width:7%;}
+				button{
+					float:center;
+					}
+			}
+		}
+	}
+}
+#giftcardList{
+		display:block;
+		margin:auto;
+		max-height:400px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		width: 100%;
+}
+
+
+#transactionsContainer{
+	width: 100%;
+	table{
+		width: 100%;
+		tr{
+			td,th{
+				text-align:center;
+			}
+			th{
+				border-bottom: 0px;
+			}
+			td,th{&:nth-child(1){width:7%; min-width:$tLWidth1;}}
+			td,th{&:nth-child(2){width:14%; min-width:$tLWidth2;}}
+			td,th{&:nth-child(3){width:50%; min-width:$tLWidth3;}}
+			td,th{&:nth-child(4){width:29%; min-width:$tLWidth4;}}
+		}
+	}
+	#transactionList{
+		display:block;
+		max-height:400px;
+		overflow-y: auto;
+		width:100%;
+		
+	}
+}
+.tab-pane{
+	min-height: 700px;
+	padding-left: 5%;
+	padding-right: 5%;
+
+}
+.how-many{
+	margin-bottom: 15px;
+}
+.row-custom{
+  	margin: 0;
+}
+
+#settings{
+	#addBtnsWrapper,#payBtnsWrapper{
+		table{
+			width:100%;
+			tr{ width:100%;}
+			td{
+				border-right: 1px solid #eeeeee;
+				&:last-child{border-right:0;}
+
+				.form-control{
+					width:80%;
+					margin-left: 10%;
+					text-align: center;
+				}
+				.checkboxWrapper{
+					width:70%;
+				.checkbox{
+					display:inline-block;
+					float:right;
+				}
+				}
+			}
+		}
+	}
+}
+.isHidden{
+	display: none;
+}
+
+.modal-btn1{
+	width: 100%;
+}
+
+input.password{
+	text-align: center; 
+	height: 75px; 
+	font-size:25pt;
+	margin-bottom: 10px;
+}
+.inline{
+	display:inline;
+}
