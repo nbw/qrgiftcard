@@ -2,13 +2,13 @@
 
 
 <p>
-The web-app is tool to create/manage giftcards and was developed for local businesses in Victoria, Canada. It utilzes QR codes which redirect to a locally hosted server.
+The QR Giftcard Web-app is a tool to create/manage giftcards and was developed for local businesses in Victoria, Canada. It utilzes QR codes which redirect to a locally hosted server.
 </p>
 
-<h2>This repository only includes the front-end code.</h2>
+<h2>NOTE: This repository only includes the front-end code.</h2>
 
 <p>
-The app contains two webpages:
+The app is comprised of two webpages:
 
 <ol>
 <li>Giftcard page to be used by a restaurant server</li>
