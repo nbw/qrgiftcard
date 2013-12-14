@@ -33,6 +33,9 @@ The app is comprised of two webpages:
 </ul>
 
 <h2>Front-end</h2>
+<p>
+  The front-end is divided into an <b>index.liquid</b>, <b>style.scss</b>, <b>myknockout.js</b>, <b>myfunctions.js</b> and <b>admin.liquid</b> file. 
+</p>
 <ul>
 <li>HTML/HTML5</li>
 <li>CSS/CSS3 written using SASS preproccesor</li>
