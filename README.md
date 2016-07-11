@@ -7,7 +7,7 @@ The QR Giftcard Web-app is a tool to create/manage giftcards and was developed f
 
 <h2>This repository only includes the front-end code.</h2>
 
-<h2>* * * * * * * * * * * * * * * * <a href="http://qrgiftcard.nathanwillson.com/"> The demo can be found here </a> * * * * * * * * * * * * * * * *</h2>
+<h2>* * * * * * * * * * * * * * * * * <a href="http://qrgiftcard.nathanwillson.com/"> The demo can be found here </a> * * * * * * * * * * * * * * * * *</h2>
 
 
 
