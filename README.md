@@ -62,7 +62,9 @@ The app is comprised of two webpages:
 </ul>
 
 <h2>Screenshots</h2>
+
 ![ipad screenshot](/images/ipad4.png?raw=true)
+
 ![admin screenshot](/images/admin1.png?raw=true)
 
 <h2>License</h2>
